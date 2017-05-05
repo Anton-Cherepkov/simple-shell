@@ -97,6 +97,7 @@ int next_token1(char **res, char status, char *finish_status)
             if (!realloc_result)
             {
                 free(result);
+                result = NULL;
                 *res = NULL;
                 return E_MEMFAIL;
             }
@@ -167,7 +168,7 @@ int next_token1(char **res, char status, char *finish_status)
                 }
                 --buffer_position;
 
-                if (n >= argc_s)
+                if (n >= argc_s || n < 0)
                     to_be_appended = NULL;
                 else
                     to_be_appended = argv_s[n];
@@ -180,6 +181,7 @@ int next_token1(char **res, char status, char *finish_status)
                 if (!to_be_appended)
                 {
                     free(result);
+                    result = NULL;
                     *res = NULL;
                     return E_MEMFAIL;
                 }
@@ -193,6 +195,7 @@ int next_token1(char **res, char status, char *finish_status)
                 if (!to_be_appended)
                 {
                     free(result);
+                    result = NULL;
                     *res = NULL;
                     return E_MEMFAIL;
                 }
@@ -209,6 +212,7 @@ int next_token1(char **res, char status, char *finish_status)
                 if (!env_name)
                 {
                     free(result);
+                    result = NULL;
                     *res = NULL;
                     return E_MEMFAIL;
                 }
@@ -220,7 +224,9 @@ int next_token1(char **res, char status, char *finish_status)
                     if (!buffer[buffer_position])
                     {
                         free(to_be_appended);
+                        to_be_appended = NULL;
                         free(result);
+                        result = NULL;
                         *res = NULL;
                         return E_SYNTAX_ERROR;
                     }
@@ -234,7 +240,9 @@ int next_token1(char **res, char status, char *finish_status)
                         if (!env_name_realloc)
                         {
                             free(env_name);
+                            env_name = NULL;
                             free(result);
+                            result = NULL;
                             *res = NULL;
                             return E_MEMFAIL;
                         }
@@ -250,10 +258,12 @@ int next_token1(char **res, char status, char *finish_status)
                 need_free = 0;
 
                 free(env_name);
+                env_name = NULL;
             }
             else
             {
                 free(result);
+                result = NULL;
                 *res = NULL;
                 return E_SYNTAX_ERROR;
             }
@@ -269,8 +279,12 @@ int next_token1(char **res, char status, char *finish_status)
                     if (!result_capacity)
                     {
                         if (need_free)
+                        {
                             free(to_be_appended);
+                            to_be_appended = NULL;
+                        }
                         free(result);
+                        result = NULL;
                         return E_MEMFAIL;
                     }
                     result = result_realloc;
@@ -280,7 +294,10 @@ int next_token1(char **res, char status, char *finish_status)
                 result_pos += strlen(to_be_appended);
 
                 if (need_free)
+                {
                     free(to_be_appended);
+                    to_be_appended = NULL;
+                }
             }
 
         }
@@ -341,6 +358,7 @@ int next_token2(char **res)
         if (next_token1_res != E_OK && next_token1_res != E_WRONG_QUOTE_BALANCE)
         {
             free(accumulator);
+            accumulator = NULL;
             *res = NULL;
             return next_token1_res;
         }
@@ -350,7 +368,9 @@ int next_token2(char **res)
         if (!realloc_result)
         {
             free(accumulator);
+            accumulator = NULL;
             free(temp);
+            temp = NULL;
             *res = NULL;
             return E_MEMFAIL;
         }
@@ -358,6 +378,7 @@ int next_token2(char **res)
 
         strcat(accumulator + accumulator_len, temp);
         free(temp);
+        temp = NULL;
         accumulator_len += temp_len;
     }
 
@@ -410,6 +431,7 @@ int next_program(program **res)
             if (buffer[buffer_position] == '>')
             {
                 free(p->output_file);
+                p->output_file = NULL;
 
                 if (buffer[buffer_position + 1] == '>')
                     p->output_type = 2;
@@ -440,6 +462,7 @@ int next_program(program **res)
             else
             {
                 free(p->input_file);
+                p->input_file = NULL;
 
                 ++buffer_position;
                 skip_whitespaces_and_tabs();
